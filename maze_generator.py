@@ -142,10 +142,10 @@ def main():
     running = True
 
     # Get the next available maze index based on existing files
-    maze_index = get_next_maze_index(r"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_input")
+    maze_index = get_next_maze_index("AI_Maze_Solver\mazes_input")
     
     # Define the file path to save the maze
-    file_path = fr"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_input\maze_{maze_index}.csv"
+    file_path = f"AI_Maze_Solver\mazes_input\maze_{maze_index}.csv"
     
     while running:
         display_maze(grid, screen, CELL_SIZE, MARGIN, button_rects)

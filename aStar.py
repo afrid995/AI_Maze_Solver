@@ -209,6 +209,6 @@ def main(input_directory, output_directory):
 
 # Example usage
 if __name__ == "__main__":
-    input_directory = r"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_input"  # Path to input directory
-    output_directory = r"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_output\aStar"  # Path to save output CSV file
+    input_directory = "AI_Maze_Solver\mazes_input"  # Path to input directory
+    output_directory = "AI_Maze_Solver\mazes_output\aStar"  # Path to save output CSV file
     main(input_directory, output_directory)

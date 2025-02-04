@@ -165,6 +165,6 @@ def main(input_directory, output_directory):
     pygame.quit()
 
 if __name__ == "__main__":
-    input_directory = r"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_input"
-    output_directory = r"C:\Users\prudhvi\OneDrive\Desktop\Afrid\maze project\maze final\mazes_output\dfs"
+    input_directory = "AI_Maze_Solver\mazes_input"
+    output_directory = "AI_Maze_Solver\mazes_output\dfs"
     main(input_directory, output_directory)

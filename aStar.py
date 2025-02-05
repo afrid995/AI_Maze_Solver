@@ -3,6 +3,8 @@ import pygame
 import time
 import heapq
 import glob
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 # Read grid from CSV
 def read_grid_from_csv(file_path):
@@ -15,6 +17,33 @@ def write_grid_to_csv(file_path, grid):
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(grid)
+
+def write_grid_to_pdf(file_path, grid):
+    """Generate a PDF representation of the solved maze."""
+    cell_size = 10
+    margin = 5
+    width = len(grid[0]) * cell_size + 2 * margin
+    height = len(grid[0]) * cell_size + 2 * margin
+
+    c = canvas.Canvas(file_path, pagesize=(width, height))
+    
+    colors = {
+        0: (0, 0, 0),  # Wall (Black)
+        1: (255, 255, 255),  # Path (White)
+        2: (0, 255, 0),  # Start (Green)
+        3: (255, 0, 0),  # Goal (Red)
+        4: (0, 0, 255),  # Final Path (Deep Blue)
+        5: (173, 216, 230)  # Explored Path (Light Blue)
+    }
+
+    for row in range(len(grid)):
+        for col in range(len(grid[0])):
+            color = colors.get(grid[row][col], (0, 0, 0))
+            c.setFillColorRGB(color[0] / 255, color[1] / 255, color[2] / 255)
+            c.rect(margin + col * cell_size, height - (margin + (row + 1) * cell_size), cell_size, cell_size, fill=1)
+
+    c.save()
+
 
 # Heuristic function (Manhattan distance)
 def heuristic(a, b):
@@ -50,8 +79,7 @@ def a_star(grid, start, goal, screen, CELL_SIZE, MARGIN, quit_button_rect):
         if current != start and current != goal:
             grid[current[0]][current[1]] = 5  # Visited nodes (light blue)
             display_maze(grid, screen, CELL_SIZE, MARGIN, quit_button_rect)
-            time.sleep(0.02)
-
+            # time.sleep(0.00000000000000000000001)
         if current == goal:  # Path found
             path = []
             while current:
@@ -89,7 +117,7 @@ def mark_path_in_grid(grid, path, screen, CELL_SIZE, MARGIN, quit_button_rect):
 
         grid[x][y] = 4  # Mark path (deep blue)
         display_maze(grid, screen, CELL_SIZE, MARGIN, quit_button_rect)
-        time.sleep(0.05)  # Delay for animation
+        time.sleep(0.01)  # Delay for animation
     return grid
 
 # Display the maze with Pygame
@@ -147,14 +175,16 @@ def get_next_maze_input(directory):
     return f"{directory}/maze_{next_index}.csv"
 
 # Function to find the corresponding aStar output file name
-def get_corresponding_aStar_file(input_directory, output_directory):
-    maze_file = get_next_maze_input(input_directory)  # Get latest maze file
+def get_corresponding_dfs_files(input_directory, csv_output_directory, pdf_output_directory):
+    maze_file = get_next_maze_input(input_directory)
     maze_index = int(maze_file.split('_')[-1].split('.')[0])  # Extract the index
-    return f"{output_directory}/aStar_{maze_index}.csv"
+    csv_path = f"{csv_output_directory}/aStar_{maze_index}.csv"
+    pdf_path = f"{pdf_output_directory}/aStar_{maze_index}.pdf"
+    return csv_path, pdf_path
 
 
 # Main function to execute A* and visualize the result
-def main(input_directory, output_directory):
+def main(input_directory, csv_output_directory, pdf_output_directory):
     input_file = get_next_maze_input(input_directory)
     grid = read_grid_from_csv(input_file)
     start = None
@@ -173,7 +203,7 @@ def main(input_directory, output_directory):
         return
 
     pygame.init()
-    CELL_SIZE = 20
+    CELL_SIZE = 15
     MARGIN = 2
     screen_width = (CELL_SIZE + MARGIN) * len(grid[0])
     screen_height = (CELL_SIZE + MARGIN) * len(grid) + 50  # Extra space for Quit button
@@ -187,11 +217,11 @@ def main(input_directory, output_directory):
     path = a_star(grid, start, goal, screen, CELL_SIZE, MARGIN, quit_button_rect)
 
     if path:
-        # Mark the final path with animation
         mark_path_in_grid(grid, path, screen, CELL_SIZE, MARGIN, quit_button_rect)
-        output_file = get_corresponding_aStar_file(input_directory, output_directory)
-        write_grid_to_csv(output_file, grid)
-        print(f"Path found and saved to {output_file}")
+        csv_file, pdf_file = get_corresponding_dfs_files(input_directory, csv_output_directory, pdf_output_directory)
+        write_grid_to_csv(csv_file, grid)
+        write_grid_to_pdf(pdf_file, grid)
+        print(f"Path saved to:\nCSV: {csv_file}\nPDF: {pdf_file}")
     else:
         print("No path found.")
 
@@ -209,6 +239,7 @@ def main(input_directory, output_directory):
 
 # Example usage
 if __name__ == "__main__":
-    input_directory = "AI_Maze_Solver\mazes_input"  # Path to input directory
-    output_directory = "AI_Maze_Solver\mazes_output\aStar"  # Path to save output CSV file
-    main(input_directory, output_directory)
+    input_directory = r"AI_Maze_Solver\mazes_input"  # Path to input directory
+    csv_output_directory = r"AI_Maze_Solver\mazes_output_csv\aStar"  # Path to save output CSV file
+    pdf_output_directory=r"AI_Maze_Solver\mazes_output_pdf\aStar" # Path to save output PDF file
+    main(input_directory, csv_output_directory, pdf_output_directory)
